@@ -1,0 +1,67 @@
+---
+import companies from "../data/companies.json";
+import meta from "../data/meta.json";
+import { bySector } from "../lib/stats.mjs";
+import "../styles/global.css";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const link = (p) => `${base}/${p.replace(/^\//, "")}`;
+const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
+
+// Group every entity by sector, sectors ordered by company count (desc).
+const order = ["Institution", ...bySector(companies).map((s) => s.label)];
+const grouped = [...new Set([...order, ...companies.map((c) => c.sector)])]
+  .map((sector) => ({
+    sector,
+    rows: companies
+      .filter((c) => c.sector === sector)
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  }))
+  .filter((g) => g.rows.length > 0);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>All Italian companies & institutions in Malaysia — OpenMap</title>
+    <meta name="description" content="Browse every Italian company and institution in Malaysia by sector, with industry, location and details." />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav class="crumbs">
+        <a href={link("")}>The State of Italian Business in Malaysia</a>
+        <span class="dot">›</span>
+        <span>All companies</span>
+      </nav>
+
+      <header class="masthead">
+        <p class="kicker">OpenMap · The evidence behind the report</p>
+        <h1>Italian companies &amp; institutions in Malaysia</h1>
+        <p class="summary">{companies.length} entities, by sector. Every number in the <a href={link("")}>report</a> is computed from this list.</p>
+      </header>
+
+      {isPlaceholder && (
+        <p class="notice">⚠ Sample data for layout only. Replace with the real cleaned seed list before publishing.</p>
+      )}
+
+      {grouped.map((g) => (
+        <section>
+          <h2>{g.sector} <span class="count">{g.rows.length}</span></h2>
+          <ul class="colist">
+            {g.rows.map((c) => (
+              <li>
+                <a class="co-name" href={link(`company/${c.slug}`)}>{c.name}</a>
+                <span class="co-meta">{c.industry} · {c.city}{c.firstSeen ? ` · since ${c.firstSeen}` : ""}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <footer>
+        <a href={link("")}>← Back to the report</a> · OpenMap, open data, free to cite.
+      </footer>
+    </div>
+  </body>
+</html>

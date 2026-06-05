@@ -32,3 +32,19 @@ test("bars are sorted descending (chart contract)", () => {
   const s = bySector(companies);
   for (let i = 1; i < s.length; i++) assert.ok(s[i - 1].count >= s[i].count);
 });
+
+// The report is an aggregation of the detail layer, not a separate dataset.
+// These guard that the two can never describe different worlds.
+test("report headline derives from the same records as the detail pages", () => {
+  const stats = headlineStats(companies);
+  const detailPages = companies.length; // one static page per record
+  const companyPages = companies.filter((c) => c.type === "company").length;
+  assert.equal(stats.companies + stats.institutions, detailPages);
+  assert.equal(stats.companies, companyPages);
+});
+
+test("every record has a unique slug (one detail page each)", () => {
+  const slugs = companies.map((c) => c.slug);
+  assert.equal(new Set(slugs).size, slugs.length, "duplicate slugs would collide on URLs");
+  for (const s of slugs) assert.match(s, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+});

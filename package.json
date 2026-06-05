@@ -1,0 +1,17 @@
+{
+  "name": "openmap-malaysia",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The State of Italian Business in Malaysia — an open, free status report.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check:data": "node scripts/check-data.mjs",
+    "test": "node scripts/check-data.mjs && node --test"
+  },
+  "dependencies": {
+    "astro": "^4.16.0"
+  }
+}

@@ -1,0 +1,63 @@
+/* OpenMap — statistical-publication aesthetic.
+   Near-monochrome, one accent, two typefaces. No SaaS landing chrome. */
+:root {
+  --font-serif: Georgia, "Libre Baskerville", "Times New Roman", serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --ink: #16201b;
+  --ink-soft: #5a675f;
+  --rule: #dfe4e0;
+  --paper: #fbfbf9;
+  --accent: #1a7a4c; /* Italian green, used only to encode data / mark structure */
+  --max: 820px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.55;
+}
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+/* ---- Masthead ---- */
+.masthead { border-bottom: 2px solid var(--ink); padding: 48px 0 20px; margin-top: 24px; }
+.kicker { font: 600 13px/1 var(--font-sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+h1 { font-family: var(--font-serif); font-weight: 700; font-size: clamp(30px, 6vw, 46px); line-height: 1.1; margin: 0 0 12px; letter-spacing: -0.01em; }
+.summary { font-size: clamp(16px, 2.4vw, 19px); color: var(--ink-soft); max-width: 58ch; margin: 0; }
+
+/* ---- Credibility strip ---- */
+.creds { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--ink-soft); padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.creds strong { color: var(--ink); font-weight: 600; }
+.creds .dot { color: var(--rule); }
+
+/* ---- Stat row hero ---- */
+.statrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin: 36px 0; }
+.stat { padding: 4px 18px; border-left: 1px solid var(--rule); }
+.stat:first-child { border-left: 0; padding-left: 0; }
+.stat .num { font-family: var(--font-serif); font-weight: 700; font-size: clamp(34px, 7vw, 56px); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.stat .lbl { font-size: 13px; color: var(--ink-soft); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* ---- Sections ---- */
+section { padding: 32px 0; border-top: 1px solid var(--rule); }
+section h2 { font-family: var(--font-serif); font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+section .sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 22px; }
+
+/* ---- Notable list ---- */
+.notable { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 40px; }
+.notable li { break-inside: avoid; padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
+.notable .meta { color: var(--ink-soft); font-size: 13px; }
+
+/* ---- Methodology / footer ---- */
+.method { font-size: 14px; color: var(--ink-soft); max-width: 64ch; }
+.method a, .creds a { color: var(--accent); }
+.notice { background: #fff7e6; border: 1px solid #f0d99a; color: #6b4e00; font-size: 13px; padding: 12px 14px; border-radius: 6px; margin: 18px 0; }
+footer { padding: 36px 0 64px; color: var(--ink-soft); font-size: 13px; border-top: 2px solid var(--ink); margin-top: 8px; }
+
+@media (max-width: 640px) {
+  .statrow { grid-template-columns: repeat(2, 1fr); gap: 24px 0; }
+  .stat { border-left: 0; padding-left: 0; }
+  .notable { columns: 1; }
+}

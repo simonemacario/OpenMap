@@ -1,0 +1,22 @@
+[
+  { "name": "Pirelli Tyre Malaysia Sdn Bhd", "sector": "Manufacturing", "city": "Kuala Lumpur", "firstSeen": 2019, "type": "company" },
+  { "name": "Leonardo Malaysia", "sector": "Aerospace & Defence", "city": "Kuala Lumpur", "firstSeen": 2015, "type": "company" },
+  { "name": "Ferrero Malaysia Sdn Bhd", "sector": "Food & Beverage", "city": "Petaling Jaya", "firstSeen": 2012, "type": "company" },
+  { "name": "Barilla Malaysia", "sector": "Food & Beverage", "city": "Kuala Lumpur", "firstSeen": 2021, "type": "company" },
+  { "name": "Luxottica Malaysia Sdn Bhd", "sector": "Retail & Fashion", "city": "Kuala Lumpur", "firstSeen": 2017, "type": "company" },
+  { "name": "Prysmian Cables & Systems Malaysia", "sector": "Manufacturing", "city": "Shah Alam", "firstSeen": 2014, "type": "company" },
+  { "name": "Danieli Far East", "sector": "Engineering", "city": "Johor Bahru", "firstSeen": 2016, "type": "company" },
+  { "name": "Saipem Malaysia Sdn Bhd", "sector": "Energy", "city": "Kuala Lumpur", "firstSeen": 2011, "type": "company" },
+  { "name": "Eni Malaysia", "sector": "Energy", "city": "Kuala Lumpur", "firstSeen": 2010, "type": "company" },
+  { "name": "Intesa Sanpaolo (rep. office)", "sector": "Finance", "city": "Kuala Lumpur", "firstSeen": 2018, "type": "company" },
+  { "name": "Generali Malaysia", "sector": "Finance", "city": "Kuala Lumpur", "firstSeen": 2019, "type": "company" },
+  { "name": "Ariston Thermo Malaysia", "sector": "Manufacturing", "city": "Petaling Jaya", "firstSeen": 2020, "type": "company" },
+  { "name": "Brembo Malaysia", "sector": "Automotive", "city": "Shah Alam", "firstSeen": 2022, "type": "company" },
+  { "name": "Iveco Malaysia", "sector": "Automotive", "city": "Kuala Lumpur", "firstSeen": 2013, "type": "company" },
+  { "name": "Salini Impregilo (Webuild)", "sector": "Construction", "city": "Kuala Lumpur", "firstSeen": 2015, "type": "company" },
+  { "name": "De Nora Malaysia", "sector": "Engineering", "city": "Penang", "firstSeen": 2021, "type": "company" },
+  { "name": "Italian Chamber of Commerce in Malaysia", "sector": "Institution", "city": "Kuala Lumpur", "firstSeen": 2008, "type": "institution" },
+  { "name": "ICE — Italian Trade Agency, Kuala Lumpur", "sector": "Institution", "city": "Kuala Lumpur", "firstSeen": 2000, "type": "institution" },
+  { "name": "Embassy of Italy — Commercial Office", "sector": "Institution", "city": "Kuala Lumpur", "firstSeen": 1959, "type": "institution" },
+  { "name": "Campari Malaysia", "sector": "Food & Beverage", "city": "Kuala Lumpur", "firstSeen": 2023, "type": "company" }
+]

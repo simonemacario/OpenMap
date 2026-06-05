@@ -1,0 +1,41 @@
+---
+// Static horizontal bar chart, rendered to inline SVG at build time.
+// No client JS ships. Bars sorted desc by caller. Value labelled on each bar,
+// no legend (each bar is labelled directly). Single accent hue.
+const { data = [], accent = "#1a7a4c" } = Astro.props;
+const max = Math.max(1, ...data.map((d) => d.count));
+const rowH = 34;
+const gap = 8;
+const labelW = 220;
+const barMaxW = 360;
+const valW = 44;
+const width = labelW + barMaxW + valW;
+const height = data.length * (rowH + gap);
+---
+<svg
+  class="barchart"
+  viewBox={`0 0 ${width} ${height}`}
+  role="img"
+  aria-label={`Bar chart: ${data.map((d) => `${d.label} ${d.count}`).join(", ")}`}
+>
+  {data.map((d, i) => {
+    const y = i * (rowH + gap);
+    const w = Math.max(2, Math.round((d.count / max) * barMaxW));
+    return (
+      <g transform={`translate(0 ${y})`}>
+        <text x={labelW - 12} y={rowH / 2} dy="0.35em" text-anchor="end" class="bc-label">{d.label}</text>
+        <rect x={labelW} y={4} width={w} height={rowH - 8} rx="3" fill={accent} />
+        <text x={labelW + w + 8} y={rowH / 2} dy="0.35em" class="bc-value">{d.count}</text>
+      </g>
+    );
+  })}
+</svg>
+
+<style>
+  .barchart { width: 100%; height: auto; max-width: 640px; }
+  .bc-label { font: 500 14px/1.2 var(--font-sans); fill: var(--ink); }
+  .bc-value { font: 600 14px/1.2 var(--font-sans); fill: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) {
+    .bc-label { font-size: 12px; }
+  }
+</style>

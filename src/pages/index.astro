@@ -1,0 +1,106 @@
+---
+import companies from "../data/companies.json";
+import meta from "../data/meta.json";
+import { headlineStats, bySector, byCity } from "../lib/stats.mjs";
+import BarChart from "../components/BarChart.astro";
+import "../styles/global.css";
+
+const stats = headlineStats(companies);
+const sectors = bySector(companies);
+const cities = byCity(companies);
+const notable = [...companies]
+  .filter((c) => c.type === "company")
+  .sort((a, b) => a.firstSeen - b.firstSeen)
+  .slice(0, 12);
+const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: `${meta.title} — ${meta.edition}`,
+  description: meta.summary,
+  dateModified: meta.lastUpdated,
+  isAccessibleForFree: true,
+  creator: { "@type": "Organization", name: "OpenMap" },
+};
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{meta.title} — {meta.edition}</title>
+    <meta name="description" content={meta.summary} />
+    <meta property="og:title" content={`${meta.title} — ${meta.edition}`} />
+    <meta property="og:description" content={meta.summary} />
+    <meta property="og:type" content="website" />
+    <set:html set:html={`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`} />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="masthead">
+        <p class="kicker">OpenMap · {meta.edition} · Open &amp; free</p>
+        <h1>{meta.title}</h1>
+        <p class="summary">{meta.summary}</p>
+      </header>
+
+      <div class="creds">
+        <span><strong>Sources:</strong> {meta.sources.map((s) => s.name).join(" · ")}</span>
+        <span class="dot">|</span>
+        <span><strong>Updated:</strong> {meta.lastUpdated}</span>
+        <span class="dot">|</span>
+        <span><a href="#methodology">How we counted</a></span>
+        <span class="dot">|</span>
+        <span>Free to cite</span>
+      </div>
+
+      {isPlaceholder && (
+        <p class="notice">⚠ Sample data for layout only. Replace with the real cleaned seed list and clear the number-defensibility gate before showing this to any institution.</p>
+      )}
+
+      <div class="statrow" aria-label="Headline figures">
+        <div class="stat"><div class="num">{stats.companies}</div><div class="lbl">Italian companies</div></div>
+        <div class="stat"><div class="num">{stats.sectors}</div><div class="lbl">Sectors</div></div>
+        <div class="stat"><div class="num">{stats.cities}</div><div class="lbl">Cities</div></div>
+        <div class="stat"><div class="num">{stats.newThisYear}</div><div class="lbl">New this year</div></div>
+      </div>
+
+      <section>
+        <h2>By sector</h2>
+        <p class="sub">Italian companies operating in Malaysia, grouped by sector ({stats.companies} firms).</p>
+        <BarChart data={sectors} />
+      </section>
+
+      <section>
+        <h2>By city</h2>
+        <p class="sub">Where Italian companies and institutions are based ({companies.length} entities).</p>
+        <BarChart data={cities} accent="#2b2b2b" />
+      </section>
+
+      <section>
+        <h2>Notable firms</h2>
+        <p class="sub">A selection, by year first recorded in Malaysia.</p>
+        <ul class="notable">
+          {notable.map((c) => (
+            <li>{c.name} <span class="meta">— {c.sector}, since {c.firstSeen}</span></li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="methodology">
+        <h2>Methodology &amp; sources</h2>
+        <p class="method">{meta.methodology}</p>
+        <p class="method">
+          Sources: {meta.sources.map((s) => s.name).join(", ")}.
+          Spotted an error or a missing company?{" "}
+          <a href={`mailto:${meta.correctionsEmail}?subject=OpenMap correction`}>Send a correction</a>.
+        </p>
+      </section>
+
+      <footer>
+        OpenMap · {meta.title} · {meta.edition}. Open data, free to cite.
+        {stats.institutions} institutions tracked alongside {stats.companies} companies.
+      </footer>
+    </div>
+  </body>
+</html>

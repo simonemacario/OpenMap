@@ -1,0 +1,14 @@
+{
+  "title": "The State of Italian Business in Malaysia",
+  "edition": "2026 Edition",
+  "lastUpdated": "2026-06",
+  "summary": "An open, free snapshot of Italian companies and institutions operating in Malaysia, by sector and city. No membership, no paywall, free to cite.",
+  "sources": [
+    { "name": "Italian Chamber of Commerce in Malaysia", "url": "" },
+    { "name": "ICE — Italian Trade Agency", "url": "" },
+    { "name": "SSM — Companies Commission of Malaysia", "url": "https://www.ssm.com.my/" }
+  ],
+  "methodology": "Counts are compiled from the Italian Chamber of Commerce member roster, ICE records, and SSM registrations, de-duplicated by company. Figures are point-in-time as of the edition date and labelled where partial. Corrections welcome.",
+  "correctionsEmail": "corrections@example.org",
+  "dataStatus": "PLACEHOLDER — sample data for layout only. Replace src/data/companies.json with the real cleaned seed list and clear Pre-Build Gate #4 (number defensibility) BEFORE showing this to any institution."
+}

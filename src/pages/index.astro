@@ -1,109 +1,123 @@
 ---
 import companies from "../data/companies.json";
 import meta from "../data/meta.json";
+import macro from "../data/macro.json";
 import { headlineStats, bySector, byCity } from "../lib/stats.mjs";
 import BarChart from "../components/BarChart.astro";
-import "../styles/global.css";
+import Layout from "../components/Layout.astro";
 
 const stats = headlineStats(companies);
 const sectors = bySector(companies);
 const cities = byCity(companies);
+const institutions = companies
+  .filter((c) => c.type === "institution")
+  .sort((a, b) => a.firstSeen - b.firstSeen);
 const notable = [...companies]
   .filter((c) => c.type === "company")
   .sort((a, b) => a.firstSeen - b.firstSeen)
-  .slice(0, 12);
+  .slice(0, 6);
 const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
+const arrow = (t) => (t === "up" ? "▲" : t === "down" ? "▼" : "–");
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  name: `${meta.title} — ${meta.edition}`,
+  name: meta.title,
   description: meta.summary,
   dateModified: meta.lastUpdated,
   isAccessibleForFree: true,
-  creator: { "@type": "Organization", name: "OpenMap" },
+  creator: { "@type": "Organization", name: meta.brand },
 };
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{meta.title} — {meta.edition}</title>
-    <meta name="description" content={meta.summary} />
-    <meta property="og:title" content={`${meta.title} — ${meta.edition}`} />
-    <meta property="og:description" content={meta.summary} />
-    <meta property="og:type" content="website" />
-    <set:html set:html={`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`} />
-  </head>
-  <body>
-    <div class="wrap">
-      <header class="masthead">
-        <p class="kicker">OpenMap · {meta.edition} · Open &amp; free</p>
-        <h1>{meta.title}</h1>
-        <p class="summary">{meta.summary}</p>
-      </header>
-
-      <div class="creds">
-        <span><strong>Sources:</strong> {meta.sources.map((s) => s.name).join(" · ")}</span>
-        <span class="dot">|</span>
-        <span><strong>Updated:</strong> {meta.lastUpdated}</span>
-        <span class="dot">|</span>
-        <span><a href="#methodology">How we counted</a></span>
-        <span class="dot">|</span>
-        <span>Free to cite</span>
-      </div>
-
-      {isPlaceholder && (
-        <p class="notice">⚠ Sample data for layout only. Replace with the real cleaned seed list and clear the number-defensibility gate before showing this to any institution.</p>
-      )}
-
-      <div class="statrow" aria-label="Headline figures">
-        <div class="stat"><div class="num">{stats.companies}</div><div class="lbl">Italian companies</div></div>
-        <div class="stat"><div class="num">{stats.sectors}</div><div class="lbl">Sectors</div></div>
-        <div class="stat"><div class="num">{stats.cities}</div><div class="lbl">Cities</div></div>
-        <div class="stat"><div class="num">{stats.newThisYear}</div><div class="lbl">New this year</div></div>
-      </div>
-
-      <section>
-        <h2>By sector</h2>
-        <p class="sub">Italian companies operating in Malaysia, grouped by sector ({stats.companies} firms).</p>
-        <BarChart data={sectors} />
-      </section>
-
-      <section>
-        <h2>By city</h2>
-        <p class="sub">Where Italian companies and institutions are based ({companies.length} entities).</p>
-        <BarChart data={cities} accent="#2b2b2b" />
-      </section>
-
-      <section>
-        <h2>Notable firms</h2>
-        <p class="sub">A selection, by year first recorded in Malaysia. Every figure above is computed from the full list.</p>
-        <ul class="notable">
-          {notable.map((c) => (
-            <li><a class="co-name" href={link(`company/${c.slug}`)}>{c.name}</a> <span class="meta">— {c.sector}, since {c.firstSeen}</span></li>
-          ))}
-        </ul>
-        <p class="browse"><a href={link("companies")}>Browse all {companies.length} companies &amp; institutions →</a></p>
-      </section>
-
-      <section id="methodology">
-        <h2>Methodology &amp; sources</h2>
-        <p class="method">{meta.methodology}</p>
-        <p class="method">
-          Sources: {meta.sources.map((s) => s.name).join(", ")}.
-          Spotted an error or a missing company?{" "}
-          <a href={`mailto:${meta.correctionsEmail}?subject=OpenMap correction`}>Send a correction</a>.
-        </p>
-      </section>
-
-      <footer>
-        OpenMap · {meta.title} · {meta.edition}. Open data, free to cite.
-        {stats.institutions} institutions tracked alongside {stats.companies} companies.
-      </footer>
+<Layout title={`${meta.title} — ${meta.brand}`} description={meta.summary} jsonLd={jsonLd} active="overview">
+  <header class="hero">
+    <p class="kick">{meta.tagline} <span class="live"><span class="dot"></span>Live · updated {meta.lastUpdated}</span></p>
+    <h1>{meta.title}</h1>
+    <p class="abstract" set:html={`A continuously updated record of Italian companies and institutions in Malaysia: <b>${stats.companies} firms and ${stats.institutions} institutions</b> across ${stats.sectors} sectors and ${stats.cities} cities, set against the macro indicators that move the market.`} />
+    <div class="byline">
+      <span><b>Company data:</b> {meta.companySources.map((s) => s.name).join(" · ")}</span>
+      <span class="d">|</span>
+      <span><b>Macro:</b> {meta.macroSources.map((s) => s.name).join(" · ")}</span>
+      <span class="d">|</span>
+      <a href="#methodology">Methodology &amp; sources →</a>
     </div>
-  </body>
-</html>
+  </header>
+
+  {isPlaceholder && (
+    <p class="notice">⚠ Sample company and macro data for layout only. Replace with verified figures before promoting to any institution.</p>
+  )}
+
+  <section>
+    <p class="eyebrow">The dataset</p>
+    <h2>Snapshot &amp; highlights</h2>
+    <p class="subt">Every figure is computed from the company register.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">{stats.companies}</div><div class="l">Italian companies</div></div>
+      <div class="stat"><div class="n">{stats.sectors}</div><div class="l">Sectors</div></div>
+      <div class="stat"><div class="n">{stats.cities}</div><div class="l">Cities</div></div>
+      <div class="stat"><div class="n">{stats.institutions}</div><div class="l">Institutions</div></div>
+    </div>
+    <div class="chart"><h3>By sector</h3><BarChart data={sectors} /></div>
+    <div class="chart"><h3>By city</h3><BarChart data={cities} accent="#2c352f" /></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">The market</p>
+    <h2>Malaysia macro snapshot</h2>
+    <p class="subt">Latest available figures from official sources, refreshed on a schedule.</p>
+    <div class="macro">
+      {macro.indicators.map((ind) => (
+        <div class="mcell">
+          <div class="ml">{ind.label}</div>
+          <div class="mv">{ind.value}<span class="ar">{arrow(ind.trend)}</span></div>
+          <div class="ms">{ind.source} · {ind.period}</div>
+        </div>
+      ))}
+    </div>
+    {isPlaceholder && <p class="note">{macro.note}</p>}
+  </section>
+
+  <section>
+    <p class="eyebrow">Official presence</p>
+    <h2>Italian institutions in Malaysia</h2>
+    <p class="subt">The diplomatic and trade bodies anchoring the relationship, and primary data sources for this record.</p>
+    <ul class="insts">
+      {institutions.map((i) => (
+        <li>
+          <a class="iname" href={link(`company/${i.slug}`)}>{i.name}</a>
+          <span class="imeta">{i.city} · since {i.firstSeen}</span>
+          <span class="idesc">{i.industry}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">Selected entities</p>
+    <h2>Notable firms</h2>
+    <p class="subt">A selection by year first recorded in Malaysia. Every figure above is computed from the full register.</p>
+    <ul class="notable">
+      {notable.map((c) => (
+        <li><a href={link(`company/${c.slug}`)}>{c.name}</a> <span class="m">— {c.sector}, since {c.firstSeen}</span></li>
+      ))}
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">Explore</p>
+    <h2>The full company register</h2>
+    <p class="subt">Search, filter and sort every Italian company and institution on record.</p>
+    <a class="cta" href={link("companies")}>Browse the company database →</a>
+  </section>
+
+  <section id="methodology">
+    <h2>Methodology &amp; sources</h2>
+    <p class="method">{meta.methodology}</p>
+    <p class="method">
+      Company sources: {meta.companySources.map((s) => s.name).join(", ")}. Macro sources: {meta.macroSources.map((s) => s.name).join(", ")}.
+      Spotted an error or a missing company? <a href={`mailto:${meta.correctionsEmail}?subject=OpenMap correction`}>Send a correction</a>.
+    </p>
+  </section>
+</Layout>

@@ -3,6 +3,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # Weekly rebuild so macro indicators + company data stay current ("continuously updated").
+    - cron: "0 6 * * 1"
 
 permissions:
   contents: read

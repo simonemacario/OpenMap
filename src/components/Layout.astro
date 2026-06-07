@@ -1,0 +1,58 @@
+---
+// Shared institutional shell: head + fonts, nav, tricolor rule, colophon.
+import "../styles/global.css";
+import meta from "../data/meta.json";
+
+const { title, description, jsonLd = null, active = "", wide = false } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const link = (p) => `${base}/${p.replace(/^\//, "")}`;
+const wrapClass = wide ? "wrap wide" : "wrap";
+const navItems = [
+  { key: "overview", label: "Overview", href: link("") },
+  { key: "companies", label: "Companies", href: link("companies") },
+  { key: "institutions", label: "Institutions", href: link("institutions") },
+  { key: "methodology", label: "Methodology", href: link("#methodology") },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    {jsonLd && <Fragment set:html={`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`} />}
+  </head>
+  <body>
+    <div class={wrapClass}>
+      <nav class="nav">
+        <a class="brandrow" href={link("")}>
+          <span class="mono-mark">OM</span>
+          <span class="brandtext"><span class="wm">{meta.brand}</span><span class="wmsub">{meta.descriptor}</span></span>
+        </a>
+        <div class="navlinks">
+          {navItems.map((n) => <a href={n.href} class={active === n.key ? "on" : ""}>{n.label}</a>)}
+        </div>
+      </nav>
+    </div>
+    <div class="rule2"></div>
+    <div class="tri"><i class="g"></i><i class="w"></i><i class="r"></i></div>
+
+    <main class={wrapClass}>
+      <slot />
+    </main>
+
+    <div class={wrapClass}>
+      <footer class="colophon">
+        <span><span class="wm2">{meta.brand}</span> · {meta.descriptor}</span>
+        <span>{meta.tagline} · Continuously updated · Last update {meta.lastUpdated} · © 2026 {meta.brand}</span>
+      </footer>
+    </div>
+  </body>
+</html>

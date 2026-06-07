@@ -1,6 +1,7 @@
 // Schema validation — fails the build loudly if the data is malformed.
 // Honesty as credibility: never ship blank names, bad years, or dup slugs.
 import companies from "../src/data/companies.json" with { type: "json" };
+import macro from "../src/data/macro.json" with { type: "json" };
 
 const REQUIRED = ["slug", "name", "sector", "industry", "city", "firstSeen", "type"];
 const TYPES = new Set(["company", "institution"]);
@@ -38,9 +39,23 @@ companies.forEach((row, i) => {
   }
 });
 
+// Macro indicators — every figure on the homepage must carry a source + period.
+const MACRO_REQ = ["label", "value", "source", "period"];
+if (!macro || !Array.isArray(macro.indicators) || macro.indicators.length === 0) {
+  errors.push("macro.json must have a non-empty indicators array");
+} else {
+  macro.indicators.forEach((m, i) => {
+    for (const f of MACRO_REQ) {
+      if (m[f] === undefined || m[f] === null || m[f] === "") {
+        errors.push(`macro ${i} (${m.label ?? "#" + i}): missing/empty "${f}" — a figure with no source/period is not citable`);
+      }
+    }
+  });
+}
+
 if (errors.length) {
   console.error(`✗ data check failed (${errors.length}):`);
   for (const e of errors) console.error("  - " + e);
   process.exit(1);
 }
-console.log(`✓ data check passed: ${companies.length} records valid, ${seen.size} unique slugs`);
+console.log(`✓ data check passed: ${companies.length} records valid, ${seen.size} unique slugs, ${macro.indicators.length} macro indicators`);

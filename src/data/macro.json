@@ -1,0 +1,11 @@
+{
+  "updated": "2026-06",
+  "note": "Illustrative placeholder figures for layout. The scheduled build will pull the latest release from each source.",
+  "indicators": [
+    { "label": "GDP growth", "value": "4.3%", "trend": "up", "source": "Bank Negara Malaysia", "period": "Q1 2026" },
+    { "label": "Inflation (CPI)", "value": "2.1%", "trend": "down", "source": "DOSM", "period": "May 2026" },
+    { "label": "Unemployment", "value": "3.2%", "trend": "flat", "source": "DOSM", "period": "Apr 2026" },
+    { "label": "MYR / EUR", "value": "4.95", "trend": "up", "source": "Bank Negara Malaysia", "period": "Jun 2026" },
+    { "label": "Italy–Malaysia trade", "value": "€5.2B", "trend": "up", "source": "Eurostat", "period": "2025" }
+  ]
+}

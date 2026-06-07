@@ -1,67 +1,124 @@
 ---
 import companies from "../data/companies.json";
 import meta from "../data/meta.json";
-import { bySector } from "../lib/stats.mjs";
-import "../styles/global.css";
+import Layout from "../components/Layout.astro";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
 const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
+const sectorSlug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const sizeLow = (e) => { const m = String(e || "").match(/\d+/); return m ? +m[0] : 0; };
 
-// Group every entity by sector, sectors ordered by company count (desc).
-const order = ["Institution", ...bySector(companies).map((s) => s.label)];
-const grouped = [...new Set([...order, ...companies.map((c) => c.sector)])]
-  .map((sector) => ({
-    sector,
-    rows: companies
-      .filter((c) => c.sector === sector)
-      .sort((a, b) => a.name.localeCompare(b.name)),
-  }))
-  .filter((g) => g.rows.length > 0);
+const nCompanies = companies.filter((c) => c.type === "company").length;
+const nInstitutions = companies.filter((c) => c.type === "institution").length;
+const sectorOpts = [...new Set(companies.map((c) => c.sector))].sort();
+const cityOpts = [...new Set(companies.map((c) => c.city))].sort();
+const rows = [...companies].sort((a, b) => a.name.localeCompare(b.name));
+const initial = (name) => (name.trim()[0] || "?").toUpperCase();
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>All Italian companies & institutions in Malaysia — OpenMap</title>
-    <meta name="description" content="Browse every Italian company and institution in Malaysia by sector, with industry, location and details." />
-  </head>
-  <body>
-    <div class="wrap">
-      <nav class="crumbs">
-        <a href={link("")}>The State of Italian Business in Malaysia</a>
-        <span class="dot">›</span>
-        <span>All companies</span>
-      </nav>
+<Layout title={`Company database — ${meta.brand}`} description={`Search, filter and sort every Italian company and institution in Malaysia on record. ${nCompanies} companies and ${nInstitutions} institutions.`} active="companies" wide={true}>
+  <nav class="crumbs"><a href={link("")}>Overview</a> <span class="d">›</span> <span>Company database</span></nav>
+  <header class="head">
+    <h1>Company database</h1>
+    <p class="count"><b>{nCompanies}</b> companies · <b>{nInstitutions}</b> institutions · updated {meta.lastUpdated} · reconciled from {meta.companySources.map((s) => s.name).join(", ")}</p>
+  </header>
 
-      <header class="masthead">
-        <p class="kicker">OpenMap · The evidence behind the report</p>
-        <h1>Italian companies &amp; institutions in Malaysia</h1>
-        <p class="summary">{companies.length} entities, by sector. Every number in the <a href={link("")}>report</a> is computed from this list.</p>
-      </header>
+  {isPlaceholder && (
+    <p class="notice">⚠ Sample data for layout only. Replace with the verified register before publishing.</p>
+  )}
 
-      {isPlaceholder && (
-        <p class="notice">⚠ Sample data for layout only. Replace with the real cleaned seed list before publishing.</p>
-      )}
+  <div class="toolbar">
+    <label class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="db-search" type="search" placeholder="Search companies, sectors, cities…" aria-label="Search the company database" />
+    </label>
+    <span class="filter"><select id="f-sector" aria-label="Filter by sector"><option value="">All sectors</option>{sectorOpts.map((s) => <option value={s}>{s}</option>)}</select></span>
+    <span class="filter"><select id="f-city" aria-label="Filter by city"><option value="">All cities</option>{cityOpts.map((c) => <option value={c}>{c}</option>)}</select></span>
+    <span class="filter"><select id="f-type" aria-label="Filter by type"><option value="">All types</option><option value="company">Companies</option><option value="institution">Institutions</option></select></span>
+  </div>
 
-      {grouped.map((g) => (
-        <section>
-          <h2>{g.sector} <span class="count">{g.rows.length}</span></h2>
-          <ul class="colist">
-            {g.rows.map((c) => (
-              <li>
-                <a class="co-name" href={link(`company/${c.slug}`)}>{c.name}</a>
-                <span class="co-meta">{c.industry} · {c.city}{c.firstSeen ? ` · since ${c.firstSeen}` : ""}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+  <table class="db">
+    <thead>
+      <tr>
+        <th data-key="name">Company <span class="s">↕</span></th>
+        <th class="hidem" data-key="sector">Sector <span class="s">↕</span></th>
+        <th class="hidem">Industry</th>
+        <th data-key="city">City <span class="s">↕</span></th>
+        <th class="num" data-key="since">Since <span class="s">↕</span></th>
+        <th class="num hidem" data-key="size">Size <span class="s">↕</span></th>
+      </tr>
+    </thead>
+    <tbody id="db-body">
+      {rows.map((c) => (
+        <tr
+          class={c.type === "institution" ? "inst-row" : ""}
+          data-name={c.name.toLowerCase()}
+          data-sector={c.sector}
+          data-city={c.city}
+          data-type={c.type}
+          data-since={c.firstSeen}
+          data-size={sizeLow(c.employees)}
+          data-search={`${c.name} ${c.sector} ${c.industry} ${c.city}`.toLowerCase()}
+        >
+          <td><span class="cmono">{initial(c.name)}</span><a class="cname" href={link(`company/${c.slug}`)}>{c.name}</a>{c.type === "institution" && <span class="pill">Institution</span>}</td>
+          <td class="hidem"><a class="tag" href={link(`sector/${sectorSlug(c.sector)}`)}>{c.sector}</a></td>
+          <td class="hidem muted">{c.industry}</td>
+          <td>{c.city}</td>
+          <td class="num since">{c.firstSeen}</td>
+          <td class="num hidem muted">{c.employees || "—"}</td>
+        </tr>
       ))}
+    </tbody>
+  </table>
+  <p class="noresults" id="db-noresults" style="display:none">No companies match these filters.</p>
+  <p class="dbfoot">Showing <b id="db-count">{rows.length}</b> of {rows.length} entities.</p>
+</Layout>
 
-      <footer>
-        <a href={link("")}>← Back to the report</a> · OpenMap, open data, free to cite.
-      </footer>
-    </div>
-  </body>
-</html>
+<script>
+  const q = document.getElementById("db-search");
+  const fSector = document.getElementById("f-sector");
+  const fCity = document.getElementById("f-city");
+  const fType = document.getElementById("f-type");
+  const tbody = document.getElementById("db-body");
+  const countEl = document.getElementById("db-count");
+  const noRes = document.getElementById("db-noresults");
+  if (tbody) {
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+    let sortKey = "name", sortDir = 1;
+    const apply = () => {
+      const term = (q.value || "").trim().toLowerCase();
+      const sec = fSector.value, city = fCity.value, type = fType.value;
+      let visible = 0;
+      const shown = [];
+      for (const r of rows) {
+        const ok =
+          (!term || r.dataset.search.includes(term)) &&
+          (!sec || r.dataset.sector === sec) &&
+          (!city || r.dataset.city === city) &&
+          (!type || r.dataset.type === type);
+        r.style.display = ok ? "" : "none";
+        if (ok) { visible++; shown.push(r); }
+      }
+      shown.sort((a, b) => {
+        if (sortKey === "since" || sortKey === "size") {
+          return sortDir * ((+a.dataset[sortKey]) - (+b.dataset[sortKey]));
+        }
+        return sortDir * (a.dataset[sortKey] || "").localeCompare(b.dataset[sortKey] || "");
+      });
+      shown.forEach((r) => tbody.appendChild(r));
+      countEl.textContent = String(visible);
+      noRes.style.display = visible ? "none" : "";
+    };
+    [q, fSector, fCity, fType].forEach((el) => el && el.addEventListener("input", apply));
+    document.querySelectorAll("th[data-key]").forEach((th) => {
+      th.addEventListener("click", () => {
+        const k = th.dataset.key;
+        if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; }
+        document.querySelectorAll("th[data-key]").forEach((t) => t.removeAttribute("data-dir"));
+        th.setAttribute("data-dir", sortDir > 0 ? "asc" : "desc");
+        apply();
+      });
+    });
+    apply();
+  }
+</script>

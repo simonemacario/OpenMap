@@ -1,0 +1,49 @@
+---
+import companies from "../../data/companies.json";
+import meta from "../../data/meta.json";
+import Layout from "../../components/Layout.astro";
+
+const sectorSlug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+export function getStaticPaths() {
+  const slug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  const sectors = [...new Set(companies.map((c) => c.sector))];
+  return sectors.map((sector) => ({
+    params: { slug: slug(sector) },
+    props: { sector, rows: companies.filter((c) => c.sector === sector).sort((a, b) => a.name.localeCompare(b.name)) },
+  }));
+}
+
+const { sector, rows } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const link = (p) => `${base}/${p.replace(/^\//, "")}`;
+const initial = (name) => (name.trim()[0] || "?").toUpperCase();
+---
+<Layout title={`${sector} — Italian companies in Malaysia — ${meta.brand}`} description={`Italian companies in the ${sector} sector operating in Malaysia. ${rows.length} on record.`} active="companies">
+  <nav class="crumbs">
+    <a href={link("")}>Overview</a> <span class="d">›</span>
+    <a href={link("companies")}>Company database</a> <span class="d">›</span>
+    <span>{sector}</span>
+  </nav>
+  <header class="head">
+    <p class="eyebrow">Sector</p>
+    <h1>{sector}</h1>
+    <p class="count"><b>{rows.length}</b> {rows.length === 1 ? "entity" : "entities"} on record in this sector.</p>
+  </header>
+
+  <table class="db">
+    <thead><tr><th>Company</th><th class="hidem">Industry</th><th>City</th><th class="num">Since</th><th class="num hidem">Size</th></tr></thead>
+    <tbody>
+      {rows.map((c) => (
+        <tr class={c.type === "institution" ? "inst-row" : ""}>
+          <td><span class="cmono">{initial(c.name)}</span><a class="cname" href={link(`company/${c.slug}`)}>{c.name}</a>{c.type === "institution" && <span class="pill">Institution</span>}</td>
+          <td class="hidem muted">{c.industry}</td>
+          <td>{c.city}</td>
+          <td class="num since">{c.firstSeen}</td>
+          <td class="num hidem muted">{c.employees || "—"}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="dbfoot"><a href={link("companies")}>← Back to the full database</a></p>
+</Layout>

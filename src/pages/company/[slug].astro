@@ -1,7 +1,7 @@
 ---
 import companies from "../../data/companies.json";
 import meta from "../../data/meta.json";
-import "../../styles/global.css";
+import Layout from "../../components/Layout.astro";
 
 export function getStaticPaths() {
   return companies.map((c) => ({ params: { slug: c.slug }, props: { company: c } }));
@@ -10,11 +10,14 @@ export function getStaticPaths() {
 const { company } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
+const sectorSlug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
+const isInstitution = company.type === "institution";
+const people = (company.leadership || []).filter((p) => p && p.role);
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": company.type === "institution" ? "Organization" : "Organization",
+  "@type": "Organization",
   name: company.name,
   url: company.website || undefined,
   description: company.description,
@@ -22,56 +25,46 @@ const jsonLd = {
   areaServed: "MY",
 };
 ---
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{company.name} — OpenMap</title>
-    <meta name="description" content={company.description} />
-    <set:html set:html={`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`} />
-  </head>
-  <body>
-    <div class="wrap">
-      <nav class="crumbs">
-        <a href={link("")}>The State of Italian Business in Malaysia</a>
-        <span class="dot">›</span>
-        <a href={link("companies")}>All companies</a>
-      </nav>
+<Layout title={`${company.name} — ${meta.brand}`} description={company.description} jsonLd={jsonLd} active={isInstitution ? "institutions" : "companies"}>
+  <nav class="crumbs">
+    <a href={link("")}>Overview</a> <span class="d">›</span>
+    <a href={link(isInstitution ? "institutions" : "companies")}>{isInstitution ? "Institutions" : "Company database"}</a> <span class="d">›</span>
+    <span>{company.name}</span>
+  </nav>
 
-      {isPlaceholder && (
-        <p class="notice">⚠ Sample record for layout only — not verified data.</p>
-      )}
+  {isPlaceholder && (
+    <p class="notice">⚠ Sample record for layout only — not verified data.</p>
+  )}
 
-      <header class="co-head">
-        <p class="kicker">{company.type === "institution" ? "Institution" : "Company"} · {company.sector}</p>
-        <h1>{company.name}</h1>
-        <p class="summary">{company.description}</p>
-      </header>
+  <header class="co-head">
+    <p class="kick">{isInstitution ? "Institution" : "Company"} · {company.sector}</p>
+    <h1>{company.name}</h1>
+    <p class="abstract">{company.description}</p>
+  </header>
 
-      <dl class="facts">
-        <div><dt>Industry</dt><dd>{company.industry}</dd></div>
-        <div><dt>Sector</dt><dd>{company.sector}</dd></div>
-        <div><dt>Location</dt><dd>{company.city}{company.region ? `, ${company.region}` : ""}, Malaysia</dd></div>
-        <div><dt>Present in Malaysia since</dt><dd>{company.firstSeen}</dd></div>
-        {company.employees && <div><dt>Size (local, approx.)</dt><dd>{company.employees}</dd></div>}
-        {company.website && <div><dt>Website</dt><dd><a href={company.website} rel="noopener noreferrer" target="_blank">{company.website.replace(/^https?:\/\//, "")}</a></dd></div>}
-        {company.leadership?.length > 0 && (
-          <div>
-            <dt>Leadership</dt>
-            <dd>{company.leadership.map((p) => `${p.role}${p.name && p.name !== "—" ? ` — ${p.name}` : ""}`).join("; ")}</dd>
-          </div>
-        )}
-      </dl>
+  <dl class="facts">
+    <div><dt>Industry</dt><dd>{company.industry}</dd></div>
+    <div><dt>Sector</dt><dd><a href={link(`sector/${sectorSlug(company.sector)}`)}>{company.sector}</a></dd></div>
+    <div><dt>Location</dt><dd>{company.city}{company.region ? `, ${company.region}` : ""}, Malaysia</dd></div>
+    <div><dt>Present in Malaysia since</dt><dd>{company.firstSeen}</dd></div>
+    {company.employees && <div><dt>Size (local, approx.)</dt><dd>{company.employees}</dd></div>}
+    {company.website && <div><dt>Website</dt><dd><a href={company.website} rel="noopener noreferrer" target="_blank">{company.website.replace(/^https?:\/\//, "")}</a></dd></div>}
+  </dl>
 
-      <p class="method">
-        Something wrong or out of date?{" "}
-        <a href={`mailto:${meta.correctionsEmail}?subject=OpenMap correction: ${encodeURIComponent(company.name)}`}>Send a correction</a>.
-      </p>
+  {people.length > 0 && (
+    <section>
+      <p class="eyebrow">Key people</p>
+      <h2>Leadership</h2>
+      <ul class="people">
+        {people.map((p) => (
+          <li><span>{p.name && p.name !== "—" ? p.name : "—"}</span><span class="role">{p.role}</span></li>
+        ))}
+      </ul>
+    </section>
+  )}
 
-      <footer>
-        <a href={link("companies")}>← Back to all companies</a> · OpenMap, open data, free to cite.
-      </footer>
-    </div>
-  </body>
-</html>
+  <p class="method" style="margin-top:24px">
+    Something wrong or out of date? <a href={`mailto:${meta.correctionsEmail}?subject=OpenMap correction: ${encodeURIComponent(company.name)}`}>Send a correction</a>.
+  </p>
+  <p class="method"><a href={link(isInstitution ? "institutions" : "companies")}>← Back to {isInstitution ? "institutions" : "all companies"}</a></p>
+</Layout>

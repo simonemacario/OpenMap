@@ -1,14 +1,21 @@
 {
   "title": "The State of Italian Business in Malaysia",
-  "edition": "2026 Edition",
+  "brand": "OpenMap",
+  "descriptor": "Market Intelligence",
+  "tagline": "Italian business in Malaysia",
   "lastUpdated": "2026-06",
-  "summary": "An open, free snapshot of Italian companies and institutions operating in Malaysia, by sector and city. No membership, no paywall, free to cite.",
-  "sources": [
+  "summary": "A continuously updated record of Italian companies and institutions in Malaysia, by sector and city, set against the macro indicators that move the market. Compiled from primary registries and reconciled company by company.",
+  "companySources": [
     { "name": "Italian Chamber of Commerce in Malaysia", "url": "" },
     { "name": "ICE — Italian Trade Agency", "url": "" },
     { "name": "SSM — Companies Commission of Malaysia", "url": "https://www.ssm.com.my/" }
   ],
-  "methodology": "Counts are compiled from the Italian Chamber of Commerce member roster, ICE records, and SSM registrations, de-duplicated by company. Figures are point-in-time as of the edition date and labelled where partial. Corrections welcome.",
+  "macroSources": [
+    { "name": "Bank Negara Malaysia", "url": "https://www.bnm.gov.my/" },
+    { "name": "DOSM — Department of Statistics Malaysia", "url": "https://www.dosm.gov.my/" },
+    { "name": "Eurostat", "url": "https://ec.europa.eu/eurostat" }
+  ],
+  "methodology": "Company counts are compiled from the Italian Chamber of Commerce roster, ICE records and SSM registrations, de-duplicated by company. Macro indicators are drawn from the latest official releases and refreshed on a schedule. Figures are labelled with their source and period. Corrections welcome.",
   "correctionsEmail": "corrections@example.org",
-  "dataStatus": "PLACEHOLDER — sample data for layout only. Replace src/data/companies.json with the real cleaned seed list and clear Pre-Build Gate #4 (number defensibility) BEFORE showing this to any institution."
+  "dataStatus": "PLACEHOLDER — sample company and macro data for layout only. Replace src/data/companies.json and macro.json with verified figures before promoting to any institution."
 }

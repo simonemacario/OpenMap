@@ -1,9 +1,9 @@
 {
   "name": "openmap-malaysia",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "The State of Italian Business in Malaysia — an open, free status report.",
+  "description": "OpenMap — Market Intelligence on Italian business in Malaysia. A continuously updated company database with a market-stats homepage.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

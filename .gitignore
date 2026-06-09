@@ -6,3 +6,6 @@ dist/
 .env
 .env.*
 .gstack/
+
+# Local source data — not published (contains unverified rows + contacts)
+/seed/

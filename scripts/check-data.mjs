@@ -3,7 +3,7 @@
 import companies from "../src/data/companies.json" with { type: "json" };
 import macro from "../src/data/macro.json" with { type: "json" };
 
-const REQUIRED = ["slug", "name", "sector", "industry", "city", "firstSeen", "type"];
+const REQUIRED = ["slug", "name", "type", "sector"];
 const TYPES = new Set(["company", "institution"]);
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const thisYear = new Date().getFullYear();

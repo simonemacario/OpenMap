@@ -5,27 +5,22 @@ import Layout from "../components/Layout.astro";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
-const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
 const sectorSlug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 const sizeLow = (e) => { const m = String(e || "").match(/\d+/); return m ? +m[0] : 0; };
 
 const nCompanies = companies.filter((c) => c.type === "company").length;
 const nInstitutions = companies.filter((c) => c.type === "institution").length;
-const sectorOpts = [...new Set(companies.map((c) => c.sector))].sort();
-const cityOpts = [...new Set(companies.map((c) => c.city))].sort();
+const sectorOpts = [...new Set(companies.map((c) => c.sector).filter(Boolean))].sort();
+const cityOpts = [...new Set(companies.map((c) => c.city).filter(Boolean))].sort();
 const rows = [...companies].sort((a, b) => a.name.localeCompare(b.name));
 const initial = (name) => (name.trim()[0] || "?").toUpperCase();
 ---
-<Layout title={`Company database — ${meta.brand}`} description={`Search, filter and sort every Italian company and institution in Malaysia on record. ${nCompanies} companies and ${nInstitutions} institutions.`} active="companies" wide={true}>
+<Layout title={`Company database — ${meta.brand}`} description={`Search, filter and sort every Italian company and institution in Malaysia with a confirmed Italian connection. ${nCompanies} companies and ${nInstitutions} institutions.`} active="companies" wide={true}>
   <nav class="crumbs"><a href={link("")}>Overview</a> <span class="d">›</span> <span>Company database</span></nav>
   <header class="head">
     <h1>Company database</h1>
-    <p class="count"><b>{nCompanies}</b> companies · <b>{nInstitutions}</b> institutions · updated {meta.lastUpdated} · reconciled from {meta.companySources.map((s) => s.name).join(", ")}</p>
+    <p class="count"><b>{nCompanies}</b> companies · <b>{nInstitutions}</b> institutions · confirmed Italian connection · updated {meta.lastUpdated}</p>
   </header>
-
-  {isPlaceholder && (
-    <p class="notice">⚠ Sample data for layout only. Replace with the verified register before publishing.</p>
-  )}
 
   <div class="toolbar">
     <label class="search">
@@ -44,7 +39,7 @@ const initial = (name) => (name.trim()[0] || "?").toUpperCase();
         <th class="hidem" data-key="sector">Sector <span class="s">↕</span></th>
         <th class="hidem">Industry</th>
         <th data-key="city">City <span class="s">↕</span></th>
-        <th class="num" data-key="since">Since <span class="s">↕</span></th>
+        <th>Presence</th>
         <th class="num hidem" data-key="size">Size <span class="s">↕</span></th>
       </tr>
     </thead>
@@ -54,17 +49,16 @@ const initial = (name) => (name.trim()[0] || "?").toUpperCase();
           class={c.type === "institution" ? "inst-row" : ""}
           data-name={c.name.toLowerCase()}
           data-sector={c.sector}
-          data-city={c.city}
+          data-city={c.city || ""}
           data-type={c.type}
-          data-since={c.firstSeen}
           data-size={sizeLow(c.employees)}
-          data-search={`${c.name} ${c.sector} ${c.industry} ${c.city}`.toLowerCase()}
+          data-search={`${c.name} ${c.sector} ${c.industry || ""} ${c.city || ""} ${c.italianParent || ""}`.toLowerCase()}
         >
-          <td><span class="cmono">{initial(c.name)}</span><a class="cname" href={link(`company/${c.slug}`)}>{c.name}</a>{c.type === "institution" && <span class="pill">Institution</span>}</td>
+          <td><span class="cmono">{c.logo ? <img src={c.logo} alt="" /> : initial(c.name)}</span><a class="cname" href={link(`company/${c.slug}`)}>{c.name}</a>{c.type === "institution" && <span class="pill">Institution</span>}</td>
           <td class="hidem"><a class="tag" href={link(`sector/${sectorSlug(c.sector)}`)}>{c.sector}</a></td>
-          <td class="hidem muted">{c.industry}</td>
-          <td>{c.city}</td>
-          <td class="num since">{c.firstSeen}</td>
+          <td class="hidem muted">{c.industry || "—"}</td>
+          <td>{c.city || "—"}</td>
+          <td class="muted">{c.presenceType || (c.type === "institution" ? "institution" : "—")}</td>
           <td class="num hidem muted">{c.employees || "—"}</td>
         </tr>
       ))}
@@ -100,9 +94,7 @@ const initial = (name) => (name.trim()[0] || "?").toUpperCase();
         if (ok) { visible++; shown.push(r); }
       }
       shown.sort((a, b) => {
-        if (sortKey === "since" || sortKey === "size") {
-          return sortDir * ((+a.dataset[sortKey]) - (+b.dataset[sortKey]));
-        }
+        if (sortKey === "size") return sortDir * ((+a.dataset.size) - (+b.dataset.size));
         return sortDir * (a.dataset[sortKey] || "").localeCompare(b.dataset[sortKey] || "");
       });
       shown.forEach((r) => tbody.appendChild(r));

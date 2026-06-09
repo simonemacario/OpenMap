@@ -25,8 +25,8 @@ const institutions = companies
     {institutions.map((i) => (
       <li>
         <a class="iname" href={link(`company/${i.slug}`)}>{i.name}</a>
-        <span class="imeta">{i.city} · since {i.firstSeen}</span>
-        <span class="idesc">{i.industry} — {i.description}</span>
+        <span class="imeta">{i.city}{i.firstSeen ? ` · since ${i.firstSeen}` : ""}</span>
+        <span class="idesc">{i.industry}{i.description ? ` — ${i.description}` : ""}</span>
       </li>
     ))}
   </ul>

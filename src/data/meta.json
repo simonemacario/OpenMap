@@ -15,7 +15,7 @@
     { "name": "DOSM — Department of Statistics Malaysia", "url": "https://www.dosm.gov.my/" },
     { "name": "Eurostat", "url": "https://ec.europa.eu/eurostat" }
   ],
-  "methodology": "Company counts are compiled from the Italian Chamber of Commerce roster, ICE records and SSM registrations, de-duplicated by company. Macro indicators are drawn from the latest official releases and refreshed on a schedule. Figures are labelled with their source and period. Corrections welcome.",
+  "methodology": "We publish companies with a confirmed Italian connection — ownership, founding, brand or distribution ties, Italian Chamber (ITALCHAM) membership, or verified research — alongside the Italian institutions in Malaysia. Records are compiled from the ITALCHAM roster, ICE — Italian Trade Agency, and CRIF/SSM registrations, de-duplicated by company. A wider set of listed-but-unverified firms is held back pending verification. Each record carries its sources and review status, and figures are point-in-time. Macro indicators are drawn from official releases and refreshed on a schedule. Corrections welcome.",
   "correctionsEmail": "corrections@example.org",
   "dataStatus": "PLACEHOLDER — sample company and macro data for layout only. Replace src/data/companies.json and macro.json with verified figures before promoting to any institution."
 }

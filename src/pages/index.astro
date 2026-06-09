@@ -12,10 +12,11 @@ const cities = byCity(companies);
 const institutions = companies
   .filter((c) => c.type === "institution")
   .sort((a, b) => a.firstSeen - b.firstSeen);
+const notableRank = (c) => (c.researchConfidence === "high" ? 0 : c.chamberMember ? 1 : 2);
 const notable = [...companies]
   .filter((c) => c.type === "company")
-  .sort((a, b) => a.firstSeen - b.firstSeen)
-  .slice(0, 6);
+  .sort((a, b) => notableRank(a) - notableRank(b) || a.name.localeCompare(b.name))
+  .slice(0, 8);
 const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
@@ -87,7 +88,7 @@ const jsonLd = {
       {institutions.map((i) => (
         <li>
           <a class="iname" href={link(`company/${i.slug}`)}>{i.name}</a>
-          <span class="imeta">{i.city} · since {i.firstSeen}</span>
+          <span class="imeta">{i.city}{i.firstSeen ? ` · since ${i.firstSeen}` : ""}</span>
           <span class="idesc">{i.industry}</span>
         </li>
       ))}
@@ -97,10 +98,10 @@ const jsonLd = {
   <section>
     <p class="eyebrow">Selected entities</p>
     <h2>Notable firms</h2>
-    <p class="subt">A selection by year first recorded in Malaysia. Every figure above is computed from the full register.</p>
+    <p class="subt">The best-documented Italian firms on record. Every figure above is computed from the register.</p>
     <ul class="notable">
       {notable.map((c) => (
-        <li><a href={link(`company/${c.slug}`)}>{c.name}</a> <span class="m">— {c.sector}, since {c.firstSeen}</span></li>
+        <li><a href={link(`company/${c.slug}`)}>{c.name}</a> <span class="m">— {c.sector}</span></li>
       ))}
     </ul>
   </section>

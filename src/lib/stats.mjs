@@ -10,7 +10,7 @@ export function headlineStats(rows) {
   const companies = companiesOnly(rows);
   const institutions = rows.filter((r) => r.type === "institution");
   const sectors = new Set(companies.map((r) => r.sector));
-  const cities = new Set(rows.map((r) => r.city));
+  const cities = new Set(rows.filter((r) => r.city).map((r) => r.city));
   const thisYear = new Date().getFullYear();
   const newThisYear = rows.filter((r) => r.firstSeen === thisYear).length;
   return {
@@ -36,7 +36,7 @@ export function bySector(rows) {
 /** [{ label, count }] sorted desc, all rows (companies + institutions). */
 export function byCity(rows) {
   const counts = new Map();
-  for (const r of rows) counts.set(r.city, (counts.get(r.city) ?? 0) + 1);
+  for (const r of rows) { if (!r.city) continue; counts.set(r.city, (counts.get(r.city) ?? 0) + 1); }
   return [...counts.entries()]
     .map(([label, count]) => ({ label, count }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));

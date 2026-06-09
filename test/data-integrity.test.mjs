@@ -12,9 +12,10 @@ test("sector breakdown sums to the companies headline", () => {
   assert.equal(sum, stats.companies, "sum of per-sector counts must equal total companies");
 });
 
-test("city breakdown sums to all entities (companies + institutions)", () => {
+test("city breakdown sums to every entity that has a city", () => {
   const sum = byCity(companies).reduce((a, c) => a + c.count, 0);
-  assert.equal(sum, companies.length, "sum of per-city counts must equal total entities");
+  const withCity = companies.filter((c) => c.city).length;
+  assert.equal(sum, withCity, "sum of per-city counts must equal entities with a city");
 });
 
 test("sector count equals number of distinct company sectors", () => {

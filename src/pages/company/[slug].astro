@@ -11,60 +11,62 @@ const { company } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
 const sectorSlug = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
 const isInstitution = company.type === "institution";
-const people = (company.leadership || []).filter((p) => p && p.role);
+const conf = company.researchConfidence ? `${company.researchConfidence} confidence` : null;
+const lede = company.description || `${company.industry || company.sector}${company.italianParent ? ` — part of ${company.italianParent}` : ""}.`;
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: company.name,
   url: company.website || undefined,
-  description: company.description,
+  description: company.description || undefined,
   address: { "@type": "PostalAddress", addressLocality: company.city, addressRegion: company.region, addressCountry: "MY" },
   areaServed: "MY",
 };
 ---
-<Layout title={`${company.name} — ${meta.brand}`} description={company.description} jsonLd={jsonLd} active={isInstitution ? "institutions" : "companies"}>
+<Layout title={`${company.name} — ${meta.brand}`} description={lede} jsonLd={jsonLd} active={isInstitution ? "institutions" : "companies"}>
   <nav class="crumbs">
     <a href={link("")}>Overview</a> <span class="d">›</span>
     <a href={link(isInstitution ? "institutions" : "companies")}>{isInstitution ? "Institutions" : "Company database"}</a> <span class="d">›</span>
     <span>{company.name}</span>
   </nav>
 
-  {isPlaceholder && (
-    <p class="notice">⚠ Sample record for layout only — not verified data.</p>
-  )}
-
   <header class="co-head">
     <p class="kick">{isInstitution ? "Institution" : "Company"} · {company.sector}</p>
-    <h1>{company.name}</h1>
-    <p class="abstract">{company.description}</p>
+    <div class="co-title">
+      {company.logo && <img class="co-logo" src={company.logo} alt="" width="44" height="44" />}
+      <h1>{company.name}</h1>
+    </div>
+    {company.legalName && <p class="co-legal">{company.legalName}</p>}
+    <p class="abstract">{lede}</p>
   </header>
 
   <dl class="facts">
-    <div><dt>Industry</dt><dd>{company.industry}</dd></div>
+    {company.industry && <div><dt>Industry</dt><dd>{company.industry}</dd></div>}
     <div><dt>Sector</dt><dd><a href={link(`sector/${sectorSlug(company.sector)}`)}>{company.sector}</a></dd></div>
-    <div><dt>Location</dt><dd>{company.city}{company.region ? `, ${company.region}` : ""}, Malaysia</dd></div>
-    <div><dt>Present in Malaysia since</dt><dd>{company.firstSeen}</dd></div>
+    {(company.city || company.region) && <div><dt>Location</dt><dd>{[company.city, company.region].filter(Boolean).join(", ")}, Malaysia</dd></div>}
+    {company.italianParent && <div><dt>Italian parent</dt><dd>{company.italianParent}</dd></div>}
+    {company.italyHQ && <div><dt>HQ in Italy</dt><dd>{company.italyHQ}</dd></div>}
+    {company.italyRelationship && <div><dt>Italian link</dt><dd>{company.italyRelationship}</dd></div>}
+    {company.presenceType && <div><dt>Presence in Malaysia</dt><dd>{company.presenceType}</dd></div>}
+    {company.firstSeen && <div><dt>In Malaysia since</dt><dd>{company.firstSeen}</dd></div>}
+    {company.yearFoundedGlobal && <div><dt>Group founded</dt><dd>{company.yearFoundedGlobal}</dd></div>}
     {company.employees && <div><dt>Size (local, approx.)</dt><dd>{company.employees}</dd></div>}
-    {company.website && <div><dt>Website</dt><dd><a href={company.website} rel="noopener noreferrer" target="_blank">{company.website.replace(/^https?:\/\//, "")}</a></dd></div>}
+    {company.chamberMember && <div><dt>Chamber member</dt><dd>Italian Chamber of Commerce (ITALCHAM)</dd></div>}
+    {company.website && <div><dt>Website</dt><dd><a href={company.website} rel="noopener noreferrer" target="_blank">{company.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></dd></div>}
+    {company.linkedin && <div><dt>LinkedIn</dt><dd><a href={company.linkedin} rel="noopener noreferrer" target="_blank">Company page ↗</a></dd></div>}
+    {company.ssmRegNo && <div><dt>SSM registration</dt><dd>{company.ssmRegNo}</dd></div>}
   </dl>
 
-  {people.length > 0 && (
-    <section>
-      <p class="eyebrow">Key people</p>
-      <h2>Leadership</h2>
-      <ul class="people">
-        {people.map((p) => (
-          <li><span>{p.name && p.name !== "—" ? p.name : "—"}</span><span class="role">{p.role}</span></li>
-        ))}
-      </ul>
-    </section>
-  )}
+  {company.address && <p class="method"><strong>Address.</strong> {company.address}</p>}
 
-  <p class="method" style="margin-top:24px">
+  <p class="method">
+    <strong>Verification.</strong> Status: {company.status || "n/a"}{conf ? ` · ${conf}` : ""}{company.sources ? ` · Sources: ${company.sources}` : ""}.
+    {company.sourceRef && <> <a href={company.sourceRef} rel="noopener noreferrer" target="_blank">Primary source ↗</a></>}
+  </p>
+  <p class="method">
     Something wrong or out of date? <a href={`mailto:${meta.correctionsEmail}?subject=OpenMap correction: ${encodeURIComponent(company.name)}`}>Send a correction</a>.
   </p>
-  <p class="method"><a href={link(isInstitution ? "institutions" : "companies")}>← Back to {isInstitution ? "institutions" : "all companies"}</a></p>
+  <p class="method"><a href={link(isInstitution ? "institutions" : "companies")}>← Back to {isInstitution ? "institutions" : "the database"}</a></p>
 </Layout>

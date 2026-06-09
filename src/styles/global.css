@@ -123,6 +123,10 @@ h3 { font-family: var(--serif); font-size: 16px; font-weight: 600; margin: 0 0 1
 .people { list-style: none; padding: 0; margin: 0; }
 .people li { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--rule); font-size: 15px; }
 .people .role { color: var(--soft); font-size: 13px; }
+.co-title { display: flex; align-items: center; gap: 14px; }
+.co-logo { border: 1px solid var(--rule); background: #fff; padding: 4px; object-fit: contain; flex: none; }
+.co-legal { font-size: 13px; color: var(--faint); margin: 4px 0 10px; }
+.cmono img { width: 18px; height: 18px; object-fit: contain; }
 
 /* ---- Company database (Crunchbase-style) ---- */
 .head { padding: 6px 0 16px; }

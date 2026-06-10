@@ -11,13 +11,12 @@ const sectors = bySector(companies);
 const cities = byCity(companies);
 const institutions = companies
   .filter((c) => c.type === "institution")
-  .sort((a, b) => a.firstSeen - b.firstSeen);
+  .sort((a, b) => a.name.localeCompare(b.name));
 const notableRank = (c) => (c.researchConfidence === "high" ? 0 : c.chamberMember ? 1 : 2);
 const notable = [...companies]
   .filter((c) => c.type === "company")
   .sort((a, b) => notableRank(a) - notableRank(b) || a.name.localeCompare(b.name))
   .slice(0, 8);
-const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
 const arrow = (t) => (t === "up" ? "▲" : t === "down" ? "▼" : "–");
@@ -46,10 +45,6 @@ const jsonLd = {
     </div>
   </header>
 
-  {isPlaceholder && (
-    <p class="notice">⚠ Sample company and macro data for layout only. Replace with verified figures before promoting to any institution.</p>
-  )}
-
   <section>
     <p class="eyebrow">The dataset</p>
     <h2>Snapshot &amp; highlights</h2>
@@ -77,7 +72,7 @@ const jsonLd = {
         </div>
       ))}
     </div>
-    {isPlaceholder && <p class="note">{macro.note}</p>}
+    {macro.note && <p class="note">{macro.note}</p>}
   </section>
 
   <section>

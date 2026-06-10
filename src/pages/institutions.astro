@@ -5,10 +5,9 @@ import Layout from "../components/Layout.astro";
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const link = (p) => `${base}/${p.replace(/^\//, "")}`;
-const isPlaceholder = (meta.dataStatus || "").startsWith("PLACEHOLDER");
 const institutions = companies
   .filter((c) => c.type === "institution")
-  .sort((a, b) => a.firstSeen - b.firstSeen);
+  .sort((a, b) => a.name.localeCompare(b.name));
 ---
 <Layout title={`Italian institutions in Malaysia — ${meta.brand}`} description="The Italian diplomatic and trade institutions present in Malaysia, and the primary data sources behind the register." active="institutions">
   <nav class="crumbs"><a href={link("")}>Overview</a> <span class="d">›</span> <span>Institutions</span></nav>
@@ -16,10 +15,6 @@ const institutions = companies
     <h1>Italian institutions in Malaysia</h1>
     <p class="count">The diplomatic and trade bodies anchoring the relationship, and primary data sources for this record.</p>
   </header>
-
-  {isPlaceholder && (
-    <p class="notice">⚠ Sample data for layout only.</p>
-  )}
 
   <ul class="insts">
     {institutions.map((i) => (
